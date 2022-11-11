@@ -17,7 +17,7 @@ module.exports.getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(errorCodes.NotFound).send({ message: 'Некорректный id пользователя' });
+        return res.status(errorCodes.IncorrectData).send({ message: 'Некорректный id пользователя' });
       }
       return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
