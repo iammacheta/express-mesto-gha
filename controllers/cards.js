@@ -11,6 +11,12 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))
+    .then((cardWasCreated) => res.send({ data: cardWasCreated }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+};
+
+module.exports.deleteCard = (req, res) => {
+  Card.findByIdAndRemove(req.params.cardId)
+    .then((cardWasRemoved) => res.send({ data: cardWasRemoved }))
+    .catch(() => res.status(500).send({ message: 'Такой карточки не существует' }));
 };
