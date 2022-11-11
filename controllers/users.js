@@ -9,10 +9,15 @@ module.exports.getAllusers = (req, res) => {
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        return res.status(errorCodes.NotFound).send({ message: 'Такого пользователя не существует' });
+      }
+      return res.send({ data: user });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
+        return res.status(errorCodes.NotFound).send({ message: 'Некорректный id пользователя' });
       }
       return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
