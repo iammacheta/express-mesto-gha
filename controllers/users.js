@@ -28,8 +28,22 @@ module.exports.updateProfile = (req, res) => {
     { name, about },
     {
       new: true,
-      runValidators: true
-    })
+      runValidators: true,
+    },
+  )
+    .then((user) => res.send({ data: user }))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+};
+
+module.exports.updateAvatar = (req, res) => {
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar: req.body.avatar },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
     .then((user) => res.send({ data: user }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
