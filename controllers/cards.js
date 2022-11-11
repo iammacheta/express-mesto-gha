@@ -20,3 +20,13 @@ module.exports.deleteCard = (req, res) => {
     .then((cardWasRemoved) => res.send({ data: cardWasRemoved }))
     .catch(() => res.status(500).send({ message: 'Такой карточки не существует' }));
 };
+
+module.exports.likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true },
+  )
+    .then((card) => res.send(card))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+}
