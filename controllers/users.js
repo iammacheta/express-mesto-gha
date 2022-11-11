@@ -1,3 +1,4 @@
+const { errorCodes } = require('../utils/constants');
 const User = require('../models/user');
 
 module.exports.getAllusers = (req, res) => {

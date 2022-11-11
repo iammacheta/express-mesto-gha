@@ -1,9 +1,10 @@
+const { errorCodes } = require('../utils/constants');
 const Card = require('../models/card');
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -12,13 +13,23 @@ module.exports.createCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((cardWasCreated) => res.send({ data: cardWasCreated }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные карточки' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((cardWasRemoved) => res.send({ data: cardWasRemoved }))
-    .catch(() => res.status(500).send({ message: 'Такой карточки не существует' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -28,7 +39,12 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.dislikeCard = (req, res) => {
@@ -38,5 +54,10 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+    });
 };
