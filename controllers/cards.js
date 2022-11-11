@@ -4,7 +4,7 @@ const Card = require('../models/card');
 module.exports.getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -17,7 +17,7 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные карточки' });
       }
-      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -28,7 +28,7 @@ module.exports.deleteCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
       }
-      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -43,7 +43,7 @@ module.exports.likeCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
       }
-      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -58,6 +58,6 @@ module.exports.dislikeCard = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
       }
-      return res.status(errorCodes.OtherError).send({ message: 'Произошла ошибка' });
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };

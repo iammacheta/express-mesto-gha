@@ -4,13 +4,18 @@ const User = require('../models/user');
 module.exports.getAllusers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.getUser = (req, res) => {
-  User.findById(req.params._id)
+  User.findById(req.params.userId)
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Такого пользователя нет' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
+    });
 };
 
 module.exports.createUser = (req, res) => {
@@ -18,7 +23,12 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные пользователя' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
+    });
 };
 
 module.exports.updateProfile = (req, res) => {
@@ -33,7 +43,15 @@ module.exports.updateProfile = (req, res) => {
     },
   )
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
+      }
+      if (err.name === 'ValidationError') {
+        return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные профиля' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
+    });
 };
 
 module.exports.updateAvatar = (req, res) => {
@@ -46,5 +64,13 @@ module.exports.updateAvatar = (req, res) => {
     },
   )
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
+      }
+      if (err.name === 'ValidationError') {
+        return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректная ссылка для аватара' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
+    });
 };
