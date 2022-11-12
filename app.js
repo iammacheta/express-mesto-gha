@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { limiter } = require('./utils/rateLimit');
 const { errorCodes } = require('./utils/constants');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(limiter); // Применяем ограничение по количеству запросов ко всем путям
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/users', users);
