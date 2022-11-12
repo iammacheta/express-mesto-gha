@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 const { limiter } = require('./utils/rateLimit');
 const { errorCodes } = require('./utils/constants');
 const users = require('./routes/users');
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(helmet()); // Применяем мидлвару Helmet для настройки заголовков HTTP
 app.use(limiter); // Применяем ограничение по количеству запросов ко всем путям
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
