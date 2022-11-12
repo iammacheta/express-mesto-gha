@@ -58,10 +58,15 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (!card) {
+        return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
+      }
+      return res.send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
+        return res.status(errorCodes.IncorrectData).send({ message: 'Некорректный id карточки' });
       }
       return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
