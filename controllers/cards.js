@@ -23,10 +23,15 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((cardWasRemoved) => res.send({ data: cardWasRemoved }))
+    .then((card) => {
+      if (!card) {
+        return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
+      }
+      return res.send({ data: card });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(errorCodes.NotFound).send({ message: 'Карточка не найдена' });
+        return res.status(errorCodes.IncorrectData).send({ message: 'Некорректный id карточки' });
       }
       return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
