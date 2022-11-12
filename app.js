@@ -1,8 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { errorCodes } = require('./utils/constants');
-
 const mongoose = require('mongoose');
+const { errorCodes } = require('./utils/constants');
 const users = require('./routes/users.js');
 const cards = require('./routes/cards.js');
 
