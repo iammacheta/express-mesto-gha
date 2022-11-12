@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { errorCodes } = require('./utils/constants');
 
 const mongoose = require('mongoose');
 const users = require('./routes/users.js');
@@ -24,8 +25,12 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/users', users);
-
 app.use('/cards', cards);
+
+// Обработка неправильного пути
+app.use('/', (req, res) => {
+  res.status(errorCodes.NotFound).send({ message: 'Страница не найдена' });
+});
 
 app.listen(PORT, () => {
   console.log(`Приложение слушает порт ${PORT}`);
