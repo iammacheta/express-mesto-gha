@@ -117,12 +117,17 @@ module.exports.login = (req, res) => {
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        'some-secret-key',
+        '3c574a35e06371bba21dd76a7b43b6e5ed8af68f6db0c6e8dd829c711af29e85',
         { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
       );
 
       // вернём токен
-      res.send({ token });
+      res
+        .cookie('jwt', token, {
+          // token - наш JWT токен, который мы отправляем
+          maxAge: 3600000 * 24 * 7, // кука будет просрочена через 7 дней после создания
+          httpOnly: true,
+        }).send({ _id: user._id });
     })
     .catch((err) => {
       res
