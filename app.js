@@ -6,6 +6,7 @@ const { limiter } = require('./utils/rateLimit');
 const { errorCodes } = require('./utils/constants');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
@@ -29,6 +30,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/users', users);
 app.use('/cards', cards);
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 // Обработка неправильного пути
 app.use('/', (req, res) => {

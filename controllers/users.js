@@ -1,3 +1,6 @@
+const bcrypt = require('bcryptjs');
+const validator = require('validator');
+const jwt = require('jsonwebtoken');
 const { errorCodes } = require('../utils/constants');
 const User = require('../models/user');
 
@@ -24,16 +27,38 @@ module.exports.getUser = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  if (!email || !validator.isEmail(email)) {
+    return res.status(errorCodes.IncorrectData)
+      .send({ message: 'Передан некорректный email пользователя' });
+  }
+  bcrypt.hash(password, 12)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные пользователя' });
+      } if (err.code === 11000) {
+        return res.status(errorCodes.DuplicateForUniqueValue).send({
+          message: 'Указанный email уже существует',
+        });
       }
       return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
+  return null;
 };
 
 module.exports.updateProfile = (req, res) => {
@@ -81,5 +106,27 @@ module.exports.updateAvatar = (req, res) => {
         return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные для аватара' });
       }
       return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
+    });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // создадим токен
+      const token = jwt.sign(
+        { _id: user._id },
+        'some-secret-key',
+        { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
+      );
+
+      // вернём токен
+      res.send({ token });
+    })
+    .catch((err) => {
+      res
+        .status(401)
+        .send({ message: err.message });
     });
 };
