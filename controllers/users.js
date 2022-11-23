@@ -26,8 +26,9 @@ module.exports.getUser = (req, res) => {
     });
 };
 
+// контроллер для получения информации о текущем пользователе
 module.exports.aboutMe = (req, res) => {
-  User.findById(req.user._id)
+  User.findById(req.user._id) // user._id добавляем в пейлоад в миддлваре auth
     .then((user) => {
       if (!user) {
         return res.status(errorCodes.NotFound).send({ message: 'Такого пользователя не существует' });
