@@ -3,7 +3,6 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const { errorCodes } = require('../utils/constants');
 const User = require('../models/user');
-const { remove } = require('../models/user');
 
 module.exports.getAllusers = (req, res) => {
   User.find({})
@@ -84,20 +83,20 @@ module.exports.createUser = (req, res) => {
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
       }
-      const { password: removed, ...rest } = user.toObject();
-      return res.send({ data: rest });
+      if (user._id.toString() !== req.user._id) {
+        return res.status(errorCodes.NotFound).send({ message: 'Ошибка авторизации. Нельзя редактировать чужой профиль' });
+      }
+      return user.updateOne(
+        { name, about },
+      ).then(() => {
+        const { password: removed, ...rest } = user.toObject();
+        return res.send({ data: rest });
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -108,20 +107,20 @@ module.exports.updateProfile = (req, res) => {
 };
 
 module.exports.updateAvatar = (req, res) => {
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar: req.body.avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
       }
-      const { password: removed, ...rest } = user.toObject();
-      return res.send({ data: rest });
+      if (user._id.toString() !== req.user._id) {
+        return res.status(errorCodes.NotFound).send({ message: 'Ошибка авторизации. Нельзя редактировать чужой профиль' });
+      }
+      return user.updateOne(
+        { avatar: req.body.avatar },
+      ).then(() => {
+        const { password: removed, ...rest } = user.toObject();
+        return res.send({ data: rest });
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
