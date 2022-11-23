@@ -3,6 +3,7 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const { errorCodes } = require('../utils/constants');
 const User = require('../models/user');
+const { remove } = require('../models/user');
 
 module.exports.getAllusers = (req, res) => {
   User.find({})
@@ -64,7 +65,10 @@ module.exports.createUser = (req, res) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      const { password: removed, ...rest } = user.toObject();
+      res.send({ data: rest });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные пользователя' });
@@ -92,7 +96,8 @@ module.exports.updateProfile = (req, res) => {
       if (!user) {
         return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
       }
-      return res.send({ data: user });
+      const { password: removed, ...rest } = user.toObject();
+      return res.send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -115,7 +120,8 @@ module.exports.updateAvatar = (req, res) => {
       if (!user) {
         return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
       }
-      return res.send({ data: user });
+      const { password: removed, ...rest } = user.toObject();
+      return res.send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
