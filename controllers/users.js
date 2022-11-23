@@ -26,6 +26,22 @@ module.exports.getUser = (req, res) => {
     });
 };
 
+module.exports.aboutMe = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res.status(errorCodes.NotFound).send({ message: 'Такого пользователя не существует' });
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(errorCodes.IncorrectData).send({ message: 'Некорректный id пользователя' });
+      }
+      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
+    });
+};
+
 module.exports.createUser = (req, res) => {
   const {
     name,
