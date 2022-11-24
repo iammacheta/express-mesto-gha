@@ -1,49 +1,59 @@
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
-const { errorCodes } = require('../utils/constants');
+const { errorCodes } = require('../utils/errorCodes');
 const User = require('../models/user');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
-module.exports.getAllusers = (req, res) => {
+const errorNotFound = new NotFoundError('Нет пользователя с таким id');
+const errorBadRequest = new BadRequestError('Переданы некорректные данные пользователя');
+const errorForbidden = new ForbiddenError('Ошибка авторизации. Нельзя редактировать чужой профиль');
+
+module.exports.getAllusers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' }));
+    .catch(next);
 };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res.status(errorCodes.NotFound).send({ message: 'Такого пользователя не существует' });
+        throw errorNotFound;
       }
-      return res.send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(errorCodes.IncorrectData).send({ message: 'Некорректный id пользователя' });
+        next(errorBadRequest);
+      } else {
+        next(err);
       }
-      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
 // контроллер для получения информации о текущем пользователе
-module.exports.aboutMe = (req, res) => {
+module.exports.aboutMe = (req, res, next) => {
   User.findById(req.user._id) // user._id добавляем в пейлоад в миддлваре auth
     .then((user) => {
       if (!user) {
-        return res.status(errorCodes.NotFound).send({ message: 'Такого пользователя не существует' });
+        throw errorNotFound;
       }
-      return res.send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(errorCodes.IncorrectData).send({ message: 'Некорректный id пользователя' });
+        next(errorBadRequest);
+      } else {
+        next(err);
       }
-      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -53,10 +63,10 @@ module.exports.createUser = (req, res) => {
   } = req.body;
 
   if (!email || !validator.isEmail(email)) {
-    return res.status(errorCodes.IncorrectData)
-      .send({ message: 'Передан некорректный email пользователя' });
+    throw errorBadRequest;
   }
-  return bcrypt.hash(password, 12)
+
+  bcrypt.hash(password, 12)
     .then((hash) => User.create({
       name,
       about,
@@ -66,79 +76,83 @@ module.exports.createUser = (req, res) => {
     }))
     .then((user) => {
       const { password: removed, ...rest } = user.toObject();
-      res.send({ data: rest });
+      res.send({ data: rest }).catch(next);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные пользователя' });
-      } if (err.code === 11000) {
-        return res.status(errorCodes.DuplicateForUniqueValue).send({
-          message: 'Указанный email уже существует',
-        });
+        next(errorBadRequest);
+      } else if (err.code === errorCodes.UniqueErrorCode) {
+        next(new ConflictError('При регистрации указан email, который уже существует на сервере'));
+      } else {
+        next(err);
       }
-      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
+        throw errorNotFound;
       }
       if (user._id.toString() !== req.user._id) {
-        return res.status(errorCodes.NotFound).send({ message: 'Ошибка авторизации. Нельзя редактировать чужой профиль' });
+        throw errorForbidden;
       }
       return user.updateOne(
         { name, about },
       ).then(() => {
         const { password: removed, ...rest } = user.toObject();
         return res.send({ data: rest });
-      });
+      }).catch(next);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные профиля' });
+        next(errorBadRequest);
+      } else {
+        next(err);
       }
-      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res.status(errorCodes.NotFound).send({ message: 'Пользователь не найден' });
+        throw errorNotFound;
       }
       if (user._id.toString() !== req.user._id) {
-        return res.status(errorCodes.NotFound).send({ message: 'Ошибка авторизации. Нельзя редактировать чужой профиль' });
+        throw errorForbidden;
       }
       return user.updateOne(
         { avatar: req.body.avatar },
       ).then(() => {
         const { password: removed, ...rest } = user.toObject();
         return res.send({ data: rest });
-      });
+      }).catch(next);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(errorCodes.IncorrectData).send({ message: 'Переданы некорректные данные для аватара' });
+        next(errorBadRequest);
+      } else {
+        next(err);
       }
-      return res.status(errorCodes.OtherError).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      if (!user) {
+        throw errorNotFound;
+      }
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        '3c574a35e06371bba21dd76a7b43b6e5ed8af68f6db0c6e8dd829c711af29e85', // секретный ключ
+        '3c574a35e06371bba21dd76a7b43b6e5ed8af68f6db0c6e8dd829c711af29e85',
         { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
       );
 
@@ -150,9 +164,5 @@ module.exports.login = (req, res) => {
           httpOnly: true,
         }).send({ _id: user._id });
     })
-    .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
-    });
+    .catch(next);
 };

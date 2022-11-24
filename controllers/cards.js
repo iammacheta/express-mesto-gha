@@ -1,4 +1,4 @@
-const { errorCodes } = require('../utils/constants');
+const { errorCodes } = require('../utils/errorCodes');
 const Card = require('../models/card');
 
 module.exports.getAllCards = (req, res) => {

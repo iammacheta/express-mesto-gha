@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const { limiter } = require('./utils/rateLimit');
-const { errorCodes } = require('./utils/constants');
+const { errorCodes } = require('./utils/errorCodes');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -35,4 +35,33 @@ app.use('/', (req, res) => {
   res.status(errorCodes.NotFound).send({ message: 'Страница не найдена' });
 });
 
+// здесь обрабатываем все ошибки
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
+
+  if (err.name === 'CastError') {
+    return res.status(errorCodes.BadRequest)
+      .send({ message: 'Некорректный id пользователя' });
+  }
+
+  if (err.name === 'ValidationError') {
+    return res.status(errorCodes.BadRequest)
+      .send({ message: 'Переданы некорректные данные пользователя' });
+  }
+
+  if (err.code === errorCodes.UniqueErrorCode) {
+    return res.status(errorCodes.Conflict)
+      .send({ message: 'При регистрации указан email, который уже существует на сервере' });
+  }
+
+  return res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+});
 app.listen(PORT);
