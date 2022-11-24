@@ -40,22 +40,7 @@ app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
-  if (err.name === 'CastError') {
-    return res.status(errorCodes.BadRequest)
-      .send({ message: 'Некорректный id пользователя' });
-  }
-
-  if (err.name === 'ValidationError') {
-    return res.status(errorCodes.BadRequest)
-      .send({ message: 'Переданы некорректные данные пользователя' });
-  }
-
-  if (err.code === errorCodes.UniqueErrorCode) {
-    return res.status(errorCodes.Conflict)
-      .send({ message: 'При регистрации указан email, который уже существует на сервере' });
-  }
-
-  return res
+  res
     .status(statusCode)
     .send({
       // проверяем статус и выставляем сообщение в зависимости от него
@@ -63,5 +48,6 @@ app.use((err, req, res, next) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+  next();
 });
 app.listen(PORT);
