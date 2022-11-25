@@ -71,7 +71,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => {
       const { password: removed, ...rest } = user.toObject();
-      res.send({ data: rest }).catch(next);
+      return res.send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -157,7 +157,7 @@ module.exports.login = (req, res, next) => {
           // token - наш JWT токен, который мы отправляем
           maxAge: 3600000 * 24 * 7, // кука будет просрочена через 7 дней после создания
           httpOnly: true,
-        }).send({ _id: user._id });
+        }).send({ token });
     })
     .catch(next);
 };
