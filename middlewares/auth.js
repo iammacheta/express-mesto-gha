@@ -6,13 +6,13 @@ module.exports = (req, res, next) => {
   // достаём авторизационный заголовок
   const { authorization } = req.headers;
 
-  // убеждаемся, что он есть или начинается с Bearer
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  // убеждаемся, что заголовок есть
+  if (!authorization) {
     throw new UnauthorizedError('Необходима авторизация');
   }
 
   // извлечём токен
-  const token = authorization.replace('Bearer ', '');
+  const token = authorization.replace(/^Bearer*\s*/i, '');
   let payload;
 
   try {

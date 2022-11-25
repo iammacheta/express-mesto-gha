@@ -26,10 +26,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().pattern(/^[a-zA-Z0-9]{5,}$/),
+    password: Joi.string().pattern(/^[a-zA-Z0-9]{5,}$/).required(),
   }),
 }), login);
-app.post('/signup', createUser);
+app.post('/signup', celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().pattern(/^[a-zA-Z0-9]{5,}$/).required(),
+  }).unknown(true),
+}), createUser);
 
 app.use(auth); // применяем middleware авторизации для всех остальных роутов
 
