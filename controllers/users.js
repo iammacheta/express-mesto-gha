@@ -5,11 +5,9 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
-const ForbiddenError = require('../errors/ForbiddenError');
 
 const errorNotFound = new NotFoundError('Нет пользователя с таким id');
 const errorBadRequest = new BadRequestError('Переданы некорректные данные');
-const errorForbidden = new ForbiddenError('Ошибка авторизации. Нельзя редактировать чужой профиль');
 
 module.exports.getAllusers = (req, res, next) => {
   User.find({})
