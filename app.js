@@ -2,7 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
-const { celebrate, Joi, errors, Segments } = require('celebrate');
+const {
+  celebrate,
+  Joi,
+  errors,
+  Segments,
+} = require('celebrate');
 const { limiter } = require('./utils/rateLimit');
 const { errorCodes } = require('./utils/errorCodes');
 const users = require('./routes/users');
