@@ -12,7 +12,7 @@ module.exports = (req, res, next) => {
   }
 
   // извлечём токен
-  const token = authorization.replace(/^(Bearer)*\s*(token )?\s*/i, '');
+  const token = authorization.replace(/^Bearer*\s*/i, '');
   let payload;
 
   try {
