@@ -38,7 +38,10 @@ app.post('/signup', celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().pattern(/^[a-zA-Z0-9]{5,}$/).required(),
-  }).unknown(true),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().regex(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/i),
+  }),
 }), createUser);
 
 app.use(auth); // применяем middleware авторизации для всех остальных роутов
