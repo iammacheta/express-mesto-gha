@@ -87,20 +87,16 @@ module.exports.createUser = (req, res, next) => {
 module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
-  User.findById(req.user._id)
+  User.findByIdAndUpdate(req.user._id, { name, about }, {
+    new: true,
+    runValidators: true,
+  })
     .then((user) => {
       if (!user) {
         throw errorNotFound;
       }
-      if (user._id.toString() !== req.user._id) {
-        throw errorForbidden;
-      }
-      return user.updateOne(
-        { name, about },
-      ).then(() => {
-        const { password: removed, ...rest } = user.toObject();
-        return res.send({ data: rest });
-      }).catch(next);
+      const { password: removed, ...rest } = user.toObject();
+      return res.send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -112,20 +108,17 @@ module.exports.updateProfile = (req, res, next) => {
 };
 
 module.exports.updateAvatar = (req, res, next) => {
-  User.findById(req.user._id)
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(req.user._id, { avatar }, {
+    new: true,
+    runValidators: true,
+  })
     .then((user) => {
       if (!user) {
         throw errorNotFound;
       }
-      if (user._id.toString() !== req.user._id) {
-        throw errorForbidden;
-      }
-      return user.updateOne(
-        { avatar: req.body.avatar },
-      ).then(() => {
-        const { password: removed, ...rest } = user.toObject();
-        return res.send({ data: rest });
-      }).catch(next);
+      const { password: removed, ...rest } = user.toObject();
+      return res.send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
