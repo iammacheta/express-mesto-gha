@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().required().min(2),
+    password: Joi.string().min(1).required(),
   }),
 }), login);
 app.post('/signup', celebrate({
