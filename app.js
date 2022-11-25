@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const { celebrate, Joi, errors, Segments } = require('celebrate');
 const { limiter } = require('./utils/rateLimit');
 const { errorCodes } = require('./utils/errorCodes');
 const users = require('./routes/users');
@@ -22,7 +23,12 @@ app.use(limiter); // Применяем ограничение по количе
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', login);
+app.post('/signin', celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().pattern(/^[a-zA-Z0-9]{5,}$/),
+  }),
+}), login);
 app.post('/signup', createUser);
 
 app.use(auth); // применяем middleware авторизации для всех остальных роутов
@@ -35,7 +41,9 @@ app.use('/', (req, res) => {
   res.status(errorCodes.NotFound).send({ message: 'Страница не найдена' });
 });
 
-// здесь обрабатываем все ошибки
+app.use(errors()); // обработчик ошибок celebrate
+
+// здесь обрабатываем все остальные ошибки
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
