@@ -13,7 +13,7 @@ users.get('/', getAllusers);
 users.get('/me', aboutMe);
 users.get('/:userId', celebrate({
   [Segments.PARAMS]: Joi.object().keys({
-    userId: Joi.string().required().length(24),
+    userId: Joi.string().required().length(24).hex(),
   }),
 }), getUser);
 users.patch('/me', celebrate({

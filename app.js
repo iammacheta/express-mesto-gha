@@ -50,7 +50,6 @@ app.use('/cards', cards);
 
 // Обработка неправильного пути
 app.use('/', (req, res, next) => {
-  // res.status(errorCodes.NotFound).send({ message: 'Страница не найдена' });
   next(new NotFoundError('Страница не найдена'));
 });
 
