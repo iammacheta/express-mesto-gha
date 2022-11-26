@@ -6,8 +6,6 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
-const errorNotFound = new NotFoundError('Нет пользователя с таким id');
-const errorBadRequest = new BadRequestError('Переданы некорректные данные');
 const UNIQUE_ERROR_CODE = 11000;
 
 module.exports.getAllusers = (req, res, next) => {
@@ -20,13 +18,13 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw errorNotFound;
+        throw new NotFoundError('Нет пользователя с таким id');
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(errorBadRequest);
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -38,13 +36,13 @@ module.exports.aboutMe = (req, res, next) => {
   User.findById(req.user._id) // user._id добавляем в пейлоад в миддлваре auth
     .then((user) => {
       if (!user) {
-        throw errorNotFound;
+        throw new NotFoundError('Нет пользователя с таким id');
       }
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(errorBadRequest);
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -74,7 +72,7 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(errorBadRequest);
+        next(new BadRequestError('Переданы некорректные данные'));
       } else if (err.code === UNIQUE_ERROR_CODE) {
         next(new ConflictError('При регистрации указан email, который уже существует на сервере'));
       } else {
@@ -92,14 +90,14 @@ module.exports.updateProfile = (req, res, next) => {
   })
     .then((user) => {
       if (!user) {
-        throw errorNotFound;
+        throw new NotFoundError('Нет пользователя с таким id');
       }
       const { password: removed, ...rest } = user.toObject();
       return res.send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(errorBadRequest);
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -114,14 +112,14 @@ module.exports.updateAvatar = (req, res, next) => {
   })
     .then((user) => {
       if (!user) {
-        throw errorNotFound;
+        throw new NotFoundError('Нет пользователя с таким id');
       }
       const { password: removed, ...rest } = user.toObject();
       return res.send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(errorBadRequest);
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -134,7 +132,7 @@ module.exports.login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        throw errorNotFound;
+        throw new NotFoundError('Нет пользователя с таким id');
       }
       // создадим токен
       const token = jwt.sign(
