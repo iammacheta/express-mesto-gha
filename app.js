@@ -8,11 +8,11 @@ const {
   Segments,
 } = require('celebrate');
 const { limiter } = require('./utils/rateLimit');
-const { errorCodes } = require('./utils/errorCodes');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 
@@ -30,13 +30,13 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().min(1).required(),
+    password: Joi.string().required(),
   }),
 }), login);
 app.post('/signup', celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().email().required(),
-    password: Joi.string().pattern(/^[a-zA-Z0-9]{5,}$/).required(),
+    password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/i),
@@ -49,8 +49,9 @@ app.use('/users', users);
 app.use('/cards', cards);
 
 // Обработка неправильного пути
-app.use('/', (req, res) => {
-  res.status(errorCodes.NotFound).send({ message: 'Страница не найдена' });
+app.use('/', (req, res, next) => {
+  // res.status(errorCodes.NotFound).send({ message: 'Страница не найдена' });
+  next(new NotFoundError('Страница не найдена'));
 });
 
 app.use(errors()); // обработчик ошибок celebrate
