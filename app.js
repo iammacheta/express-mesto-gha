@@ -1,5 +1,4 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const {
@@ -25,8 +24,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(helmet()); // Применяем мидлвару Helmet для настройки заголовков HTTP
 app.use(limiter); // Применяем ограничение по количеству запросов ко всем путям
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
