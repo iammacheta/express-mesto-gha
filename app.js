@@ -13,6 +13,7 @@ const cards = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
+const { URL_REG_EXP } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -39,7 +40,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/i),
+    avatar: Joi.string().regex(URL_REG_EXP),
   }),
 }), createUser);
 

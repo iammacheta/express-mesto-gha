@@ -1,5 +1,6 @@
 const users = require('express').Router();
 const { celebrate, Joi, Segments } = require('celebrate');
+const { URL_REG_EXP } = require('../utils/constants');
 
 const {
   getAllusers,
@@ -24,7 +25,7 @@ users.patch('/me', celebrate({
 }), updateProfile);
 users.patch('/me/avatar', celebrate({
   [Segments.BODY]: Joi.object().keys({
-    avatar: Joi.string().required().regex(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/i),
+    avatar: Joi.string().required().regex(URL_REG_EXP),
   }),
 }), updateAvatar);
 

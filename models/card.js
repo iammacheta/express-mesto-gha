@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const { URL_REG_EXP } = require('../utils/constants');
+
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -10,6 +12,7 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    match: [URL_REG_EXP, 'Некорректный формат ссылки'],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

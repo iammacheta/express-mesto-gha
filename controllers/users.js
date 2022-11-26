@@ -6,7 +6,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
-const UNIQUE_ERROR_CODE = 11000;
+const { UNIQUE_ERROR_CODE, SECRET_KEY } = require('../utils/constants');
 
 module.exports.getAllusers = (req, res, next) => {
   User.find({})
@@ -137,7 +137,7 @@ module.exports.login = (req, res, next) => {
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        '3c574a35e06371bba21dd76a7b43b6e5ed8af68f6db0c6e8dd829c711af29e85',
+        SECRET_KEY,
         { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
       );
 
