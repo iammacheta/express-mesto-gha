@@ -140,12 +140,7 @@ module.exports.login = (req, res, next) => {
       );
 
       // вернём токен
-      res
-        .cookie('jwt', token, {
-          // token - наш JWT токен, который мы отправляем
-          maxAge: 3600000 * 24 * 7, // кука будет просрочена через 7 дней после создания
-          httpOnly: true,
-        }).send({ token });
+      res.send({ token });
     })
     .catch(next);
 };
