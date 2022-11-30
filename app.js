@@ -45,10 +45,8 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(auth); // применяем middleware авторизации для всех остальных роутов
-
-app.use('/users', users);
-app.use('/cards', cards);
+app.use('/users', auth, users);
+app.use('/cards', auth, cards);
 
 // Обработка неправильного пути
 app.use('/', (req, res, next) => {
