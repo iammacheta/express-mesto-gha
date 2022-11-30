@@ -1,24 +1,23 @@
 // мидлвэр для авторизации
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
-const { SECRET_KEY } = require('../utils/constants');
 
 module.exports = (req, res, next) => {
   // достаём авторизационный заголовок
-  const { authorization = '' } = req.headers;
+  const { authorization } = req.headers;
 
   // убеждаемся, что заголовок есть
-  if (!authorization) {
+  if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new UnauthorizedError('Необходима авторизация');
   }
 
   // извлечём токен
-  const token = authorization.replace(/^Bearer*\s*/i, '');
+  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
     // попытаемся верифицировать токен
-    payload = jwt.verify(token, SECRET_KEY);
+    payload = jwt.verify(token, process.env.SECRET_KEY);
   } catch (err) {
     // отправим ошибку, если не получилось
     throw new UnauthorizedError('Необходима авторизация');

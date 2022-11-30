@@ -6,7 +6,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
-const { UNIQUE_ERROR_CODE, SECRET_KEY } = require('../utils/constants');
+const { UNIQUE_ERROR_CODE } = require('../utils/constants');
 
 module.exports.getAllusers = (req, res, next) => {
   User.find({})
@@ -129,7 +129,7 @@ module.exports.updateAvatar = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет пользователя с таким id');
@@ -137,7 +137,7 @@ module.exports.login = (req, res, next) => {
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        SECRET_KEY,
+        process.env.SECRET_KEY,
         { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
       );
 
