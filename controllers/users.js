@@ -68,7 +68,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => {
       const { password: removed, ...rest } = user.toObject();
-      return res.send({ data: rest });
+      return res.status(201).send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -114,8 +114,7 @@ module.exports.updateAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Нет пользователя с таким id');
       }
-      const { password: removed, ...rest } = user.toObject();
-      return res.send({ data: rest });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
