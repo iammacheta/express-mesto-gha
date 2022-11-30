@@ -1,5 +1,6 @@
 const cards = require('express').Router();
 const { celebrate, Joi, Segments } = require('celebrate');
+const { URL_REG_EXP } = require('../utils/constants');
 
 const {
   getAllCards,
@@ -13,7 +14,7 @@ cards.get('/', getAllCards);
 cards.post('/', celebrate({
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required(),
+    link: Joi.string().required().regex(URL_REG_EXP),
   }),
 }), createCard);
 cards.delete('/:cardId', celebrate({
