@@ -32,7 +32,7 @@ module.exports.getUser = (req, res, next) => {
 };
 
 // контроллер для получения информации о текущем пользователе
-module.exports.aboutMe = (req, res, next) => {
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id) // user._id добавляем в пейлоад в миддлваре auth
     .then((user) => {
       if (!user) {

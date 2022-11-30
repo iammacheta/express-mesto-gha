@@ -7,11 +7,11 @@ const {
   getUser,
   updateProfile,
   updateAvatar,
-  aboutMe,
+  getCurrentUser,
 } = require('../controllers/users');
 
 users.get('/', getAllusers);
-users.get('/me', aboutMe);
+users.get('/me', getCurrentUser);
 users.get('/:userId', celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     userId: Joi.string().required().length(24).hex(),
