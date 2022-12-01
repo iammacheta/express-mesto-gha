@@ -97,6 +97,8 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else if (err.name === 'CastError') {
+        next(new BadRequestError('Некорректный id пользователя'));
       } else {
         next(err);
       }
@@ -118,6 +120,8 @@ module.exports.updateAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
+      } else if (err.name === 'CastError') {
+        next(new BadRequestError('Некорректный id пользователя'));
       } else {
         next(err);
       }
