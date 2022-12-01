@@ -2,6 +2,7 @@ const Card = require('../models/card');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
+const { STATUS_CREATED } = require('../utils/constants');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
@@ -15,7 +16,7 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((cardWasCreated) => res.status(201).send({ data: cardWasCreated }))
+    .then((cardWasCreated) => res.status(STATUS_CREATED).send({ data: cardWasCreated }))
     .catch(next);
 };
 

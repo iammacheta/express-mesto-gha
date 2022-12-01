@@ -6,7 +6,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
-const { UNIQUE_ERROR_CODE } = require('../utils/constants');
+const { UNIQUE_ERROR_CODE, STATUS_CREATED } = require('../utils/constants');
 
 module.exports.getAllusers = (req, res, next) => {
   User.find({})
@@ -68,7 +68,7 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => {
       const { password: removed, ...rest } = user.toObject();
-      return res.status(201).send({ data: rest });
+      return res.status(STATUS_CREATED).send({ data: rest });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
