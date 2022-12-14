@@ -5,6 +5,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
+const { findUser } = require('../utils/common');
 
 const { UNIQUE_ERROR_CODE, STATUS_CREATED } = require('../utils/constants');
 
@@ -15,38 +16,12 @@ module.exports.getAllusers = (req, res, next) => {
 };
 
 module.exports.getUser = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+  findUser(req, res, req.params.userId, next);
 };
 
 // контроллер для получения информации о текущем пользователе
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id) // user._id добавляем в пейлоад в миддлваре auth
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      }
-      res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
-      }
-    });
+  findUser(req, res, req.user._id, next);
 };
 
 module.exports.createUser = (req, res, next) => {

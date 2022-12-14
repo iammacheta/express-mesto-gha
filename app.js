@@ -15,6 +15,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 const { URL_REG_EXP } = require('./utils/constants');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -28,6 +29,8 @@ app.use(helmet()); // Применяем мидлвару Helmet для наст
 app.use(limiter); // Применяем ограничение по количеству запросов ко всем путям
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(requestLogger); // подключаем логгер запросов
 
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
@@ -54,6 +57,8 @@ app.use('/cards', cards);
 app.use('/', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
+
+app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors()); // обработчик ошибок celebrate
 
