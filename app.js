@@ -16,6 +16,7 @@ const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 const { URL_REG_EXP } = require('./utils/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const cors = require('./middlewares/cors');
 
 const { PORT = 3000 } = process.env;
 
@@ -31,6 +32,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(requestLogger); // подключаем логгер запросов
+
+app.use(cors);
 
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
