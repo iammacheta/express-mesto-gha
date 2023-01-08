@@ -4,6 +4,8 @@ const allowedCors = [
   'http://mesto.back.ichetovkin.nomoredomains.club',
   'https://mesto.front.ichetovkin.nomoredomains.club',
   'http://mesto.front.ichetovkin.nomoredomains.club',
+  'https://localhost:3000',
+  'http://localhost:3000',
   'localhost:3000',
 ];
 
