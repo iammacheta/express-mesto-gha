@@ -8,6 +8,7 @@ const {
   errors,
   Segments,
 } = require('celebrate');
+const cors = require('cors');
 const { limiter } = require('./utils/rateLimit');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
@@ -16,7 +17,6 @@ const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 const { URL_REG_EXP } = require('./utils/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const cors = require('./middlewares/cors');
 
 const { PORT = 3000 } = process.env;
 
@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(requestLogger); // подключаем логгер запросов
 
-app.use(cors);
+app.use(cors());
 
 // TBD Удалить после прохождения ревью
 app.get('/crash-test', () => {
