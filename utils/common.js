@@ -17,6 +17,6 @@ function findUser(req, res, id, next) {
         next(err);
       }
     });
-};
+}
 
 module.exports = { findUser };
