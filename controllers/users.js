@@ -9,6 +9,8 @@ const { findUser } = require('../utils/common');
 
 const { UNIQUE_ERROR_CODE, STATUS_CREATED } = require('../utils/constants');
 
+const { NODE_ENV, SECRET_KEY } = process.env;
+
 module.exports.getAllusers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -114,7 +116,7 @@ module.exports.login = (req, res, next) => {
       // создадим токен
       const token = jwt.sign(
         { _id: user._id },
-        process.env.SECRET_KEY,
+        NODE_ENV === 'production' ? SECRET_KEY : 'dev-secret',
         { expiresIn: '7d' }, // токен будет просрочен через 7 дней после создания
       );
 
