@@ -15,4 +15,4 @@ rest_client
 .idea
 .vscode
 
-.env
+*.env
