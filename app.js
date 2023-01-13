@@ -17,6 +17,7 @@ const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/NotFoundError');
 const { URL_REG_EXP } = require('./utils/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const otherErrors = require('./middlewares/otherErrors');
 
 const { PORT = 3000, DB_ADDRESS } = process.env;
 
@@ -71,19 +72,5 @@ app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors()); // обработчик ошибок celebrate
 
-// здесь обрабатываем все остальные ошибки
-app.use((err, req, res, next) => {
-  // если у ошибки нет статуса, выставляем 500
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      // проверяем статус и выставляем сообщение в зависимости от него
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next(); // это обязательный параметр
-});
+app.use(otherErrors);// здесь обрабатываем все остальные ошибки
 app.listen(PORT);
